@@ -1,4 +1,4 @@
-from munros.top import Top
+from munros.munro import Munro
 import csv
 
 class MunrosCSVGateway():
@@ -11,6 +11,6 @@ class MunrosCSVGateway():
         with open(self.file_name, newline='') as csvfile:
             spamreader = csv.DictReader(csvfile, delimiter=',')
             for row in spamreader:
-                tops.append(Top(int(row["ID"]), row["Name"], int(row["Easting"]), int(row["Northing"])))
+                tops.append(Munro(int(row["ID"]), row["Name"], int(row["Easting"]), int(row["Northing"])))
         
         return tops

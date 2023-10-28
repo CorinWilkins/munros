@@ -1,7 +1,7 @@
 from math import sqrt
 
 
-class Top():
+class Munro():
     def __init__(self, id: int, name:str, e:int, n:int) -> None:
         self.id = id
         self.name = name
