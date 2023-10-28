@@ -5,7 +5,7 @@ from munros.usecase import FastestRouteSolver
 
 
 @click.command()
-@click.option('--fast', default=True, help='Use first solution strategy')
+@click.option('--fast/--slow', '-f/-s', default=True, help='Use first solution strategy')
 def main(fast):
     presenter = MapPresenter()
     FastestRouteSolver(MunrosCSVGateway('munros.csv'), presenter)(fast)
