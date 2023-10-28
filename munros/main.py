@@ -28,7 +28,7 @@ class FastestRouteSolver():
         self.munros_gateway = munros_gateway
         
     
-    def __call__(self, search_parameters) -> Any:
+    def __call__(self, fast) -> Any:
         tops = self.munros_gateway()
         distances = self.deltas(tops)
         
@@ -47,7 +47,7 @@ class FastestRouteSolver():
         
         routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
         
-        assignment = routing.SolveWithParameters(search_parameters)
+        assignment = routing.SolveWithParameters(self.get_search_parameters(fast))
         
         if assignment:
             index = routing.Start(0)
@@ -84,6 +84,19 @@ class FastestRouteSolver():
                     delta = grid_distance(top0, top1)
                 distances[x][y] = delta
         return distances
+    
+    def get_search_parameters(self, fast):
+        search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+        if fast:
+            search_parameters.first_solution_strategy = (
+                routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+            )
+        else:
+            search_parameters.local_search_metaheuristic = (
+            routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
+            search_parameters.time_limit.seconds = 60
+            search_parameters.log_search = True
+        return search_parameters
 
 
 class MapPresenter():
@@ -94,23 +107,12 @@ class MapPresenter():
         fig.show()
 
 
-def get_search_parameters(fast):
-    search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    if fast:
-        search_parameters.first_solution_strategy = (
-            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
-        )
-    else:
-        search_parameters.local_search_metaheuristic = (
-        routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
-        search_parameters.time_limit.seconds = 60
-        search_parameters.log_search = True
-    return search_parameters
+
 
 
 @click.command()
 @click.option('--fast', default=True, help='Use first solution strategy')
 def main(fast):
     usecase = FastestRouteSolver(MunrosCSVGateway('munros.csv'))
-    MapPresenter()(*usecase(get_search_parameters(fast)))
+    MapPresenter()(*usecase(fast))
     
